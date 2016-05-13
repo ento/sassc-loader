@@ -1,0 +1,38 @@
+{
+  "name": "@hoskeri/sassc-loader",
+  "version": "0.0.1",
+  "description": "webpack loader for sass, uses sassc (C/C++) compiler",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "tape ./test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoskeri/sassc-loader.git"
+  },
+  "keywords": [
+    "sass",
+    "preprocess",
+    "webpack",
+    "loader"
+  ],
+  "author": "Abhijit Hoskeri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hoskeri/sassc-loader/issues"
+  },
+  "homepage": "https://github.com/hoskeri/sassc-loader#readme",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "loader-utils": "^0.2.15"
+  },
+  "devDependencies": {
+    "tape": "^4.5.1",
+    "webpack": "^1.x.x"
+  },
+  "peerDependencies": {
+    "webpack": "1.x"
+  }
+}
