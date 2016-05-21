@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "webpack loader for sass, uses sassc (C/C++) compiler",
   "main": "src/index.js",
+  "access": "public",
   "scripts": {
     "test": "tape ./test/"
   },
