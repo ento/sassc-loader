@@ -1,7 +1,7 @@
 {
-  "name": "@hoskeri/sassc-loader",
+  "name": "sassc-loader",
   "version": "0.0.1",
-  "description": "webpack loader for sass, uses sassc (C/C++) compiler",
+  "description": "webpack loader for sass, uses sassc binary",
   "main": "src/index.js",
   "access": "public",
   "scripts": {
@@ -30,7 +30,7 @@
     "loader-utils": "^0.2.15"
   },
   "devDependencies": {
-    "tape": "^4.5.1",
+    "tape": "^4.6.0",
     "webpack": "2.1.0-beta.20"
   },
   "peerDependencies": {
