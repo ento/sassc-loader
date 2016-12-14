@@ -27,7 +27,8 @@
     "test": "test"
   },
   "dependencies": {
-    "loader-utils": "^0.2.15"
+    "loader-utils": "^0.2.15",
+    "temp": "^0.8.3"
   },
   "devDependencies": {
     "tape": "^4.6.0",

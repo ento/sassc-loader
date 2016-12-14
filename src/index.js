@@ -1,6 +1,8 @@
 var fs = require('fs');
+var path = require('path');
 var childProcess = require('child_process');
 var loaderUtils = require('loader-utils');
+var temp = require("temp").track();
 var async = require('async');
 
 module.exports = function(content) {
@@ -17,54 +19,75 @@ module.exports = function(content) {
   /* defaults */
   var options = {
     compilerBin: query.compilerBin ? query.compilerBin : 'sassc',
-    useCompass: query.useCompass ? '--compass' : '',
+    useCompass: query.useCompass ? '--compass' : null,
     workDir: query.workDir ? query.workDir : null,
-    outputStyle: query.outputStyle ? '-t ' + query.outputStyle : '-t expanded',
+    outputStyle: query.outputStyle ? query.outputStyle : 'expanded',
     includePaths: query.includePaths ? query.includePaths : [],
-    extraArgs: query.extraArgs ? query.extraArgs : '',
+    extraArgs: query.extraArgs ? query.extraArgs : null,
     skipComment: '-M',
+    inputPath: this.resourcePath,
     outputPath: null,
     outputMapPath: null,
-    webpackContext: null
+    webpackContext: this.context
   }
 
-  options.inputSource = this.resource;
-  options.outputPath = path.join(options.workDir, 'output.scss')
-  options.outputMapPath = path.join(options.workDir, 'output.scss.map')
-
-  sassCmdBin = options.compilerBin
-
-  sassCmdOpts = {
-    cwd: options.webpackContext
-  }
-
-  sassCmdArgs = [
-    options.useCompass,
-    options.outputStyle,
-    options.extraArgs,
-    options.inputSource,
-    options.outputPath
-  ]
-
-  childProcess.execFile(sassCmd, sassCmdArgs, sassCmdOpts, function(err, stdout, stderr) {
+  temp.mkdir('sassc-loader', function(err, dirPath) {
     if (err) {
       callback(err);
-    } else {
-      fs.readFile(options.outputPath, 'utf8', function(err, outputCss) {
-        if (err) {
-          callback(err);
-        } else {
-          fs.readFile(options.outputMapPath, 'utf8', function(err, outputMapCss) {
-            if (err) {
-              callback(err);
-            } else {
-              depSources = JSON.parse(mapData).sources
-
-              JSON.parse(mapData).sources.map(addDependency);
-            }
-          });
-        }
-      });
+      return;
     }
+    options.outputPath = path.join(dirPath, 'output.scss')
+    options.outputMapPath = path.join(dirPath, 'output.scss.map')
+
+    var sassCmdBin = options.compilerBin
+
+    var sassCmdOpts = {
+      cwd: options.webpackContext
+    }
+
+    var sassCmdArgs = [
+      '-t',
+      options.outputStyle,
+      '-m',
+      options.skipComment
+    ];
+
+    if (options.useCompass) {
+      sassCmdArgs.push(options.useCompass);
+    }
+
+    if (options.extraArgs) {
+      sassCmdArgs.push(options.extraArgs);
+    }
+
+    options.includePaths.forEach(function(includePath) {
+      sassCmdArgs.push('-I');
+      sassCmdArgs.push(includePath);
+    });
+
+    sassCmdArgs.push(options.inputPath);
+    sassCmdArgs.push(options.outputPath);
+
+    childProcess.execFile(sassCmdBin, sassCmdArgs, sassCmdOpts, function(err, stdout, stderr) {
+      if (err) {
+        callback(err);
+      } else {
+        fs.readFile(options.outputPath, 'utf8', function(err, outputCss) {
+          if (err) {
+            callback(err);
+          } else {
+            fs.readFile(options.outputMapPath, 'utf8', function(err, outputMapCss) {
+              if (err) {
+                callback(err);
+              } else {
+                var depSources = JSON.parse(outputMapCss).sources
+                depSources.map(addDependency);
+                callback(null, outputCss, outputMapCss);
+              }
+            });
+          }
+        });
+      }
+    });
   });
 }
